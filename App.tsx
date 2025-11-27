@@ -3,15 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { InboxScreen } from './src/features/inbox/screens/InboxScreen';
+import { RootNavigator } from '@/navigation/RootNavigator';
 
 export default function App() {
-  return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <InboxScreen />
-      </GestureHandlerRootView>
-    </SafeAreaProvider>
-  );
+  return
+    <RootNavigator/>;
+  
 }
 
 const styles = StyleSheet.create({
