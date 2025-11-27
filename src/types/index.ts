@@ -18,3 +18,8 @@ export interface Conversation{
     status: MessageStatus;
     isPinned?: boolean;
 }
+// This defines which screens exist and what data they expect
+export type RootStackParamList = {
+  Inbox: undefined; // No data needed to show the Inbox
+  ChatDetail: { conversationId: string }; // We MUST pass an ID to open a chat
+};

@@ -5,6 +5,11 @@ import {ConversationRow} from '@/components/ConversationRow';
 import { MOCK_CONVERSATIONS } from '../data/mock';
 import {Conversation} from '@/types';
 import { SwipeableRow } from '../components/SwipeableRow';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import { RootStackParamList } from '@/types';
+
+
+
 
 //fake api call simulation which takes 1sec to respond
 //retuns TRUE on success, FALSE on failure
@@ -18,12 +23,15 @@ const fakeArchiveApi = async (id:string): Promise<boolean>=>{
     });
 };
 export const InboxScreen =()=>{
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     //1. lifting the data to a local state so we can mutate it
     const [conversations, setConversations]=useState<Conversation[]>(MOCK_CONVERSATIONS);
     //Handlers should be wrapped in userCallback to prevent re-creation on every render
     const handlePress=useCallback((id:string)=>{
-        console.log('Pressed chat:', id);
-    }, []);
+        console.log('Navigation triggered for:', id);
+        navigation.navigate('ChatDetail', {conversationId: id});
+    }, [navigation]);
     const handleArchive= useCallback(async (conversationId: string)=>{
         //A. snapshot to remember the previous list if we need to go back
         const previousList=[...conversations];

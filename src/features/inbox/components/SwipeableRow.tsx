@@ -128,6 +128,8 @@ export const SwipeableRow = ({ children, onSwipeLeft }: SwipeableRowProps) => {
   };
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-15, 10000]) // Only activate when swiping left by 15px
+    .failOffsetY([-10, 10]) // Fail if vertical movement exceeds 10px
     .onChange((event) => {
       // Only allow swiping left (negative X)
       if (event.translationX < 0) {
