@@ -17,12 +17,13 @@ export const ChatDetailScreen = () => {
 //keep messages in state so we can eventually add new ones
 const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
 
-const handleSend= (text:string)=>{
+const handleSend= (content: string, type: 'text' | 'image')=>{
     const newMessage: Message={
         id: Date.now().toString(), //simple unique id
-        text: text,
+        text: content,
         senderId:'me',
         timestamp: new Date().toISOString(),
+        type: type, // include the message type
     };
 
     //add to the start of the array bc our list is inverted

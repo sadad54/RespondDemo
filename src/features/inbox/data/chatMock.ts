@@ -3,7 +3,10 @@ export interface Message {
   text: string;
   senderId: string; // 'me' or 'them'
   timestamp: string;
+  type?: 'text' | 'image';//new optional field (defaults to text)
 }
+
+
 
 export const MOCK_MESSAGES: Message[] = [
   {

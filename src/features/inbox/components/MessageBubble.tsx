@@ -1,6 +1,6 @@
 // src/features/inbox/components/MessageBubble.tsx
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Message } from '../data/chatMock';
 
 interface MessageBubbleProps {
@@ -9,6 +9,7 @@ interface MessageBubbleProps {
 
 export const MessageBubble = ({ message }: MessageBubbleProps) => {
   const isMe = message.senderId === 'me';
+  const isImage = message.type === 'image';
 
   return (
     <View
@@ -17,9 +18,17 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
         isMe ? styles.rightContainer : styles.leftContainer,
       ]}
     >
-      <Text style={[styles.text, isMe ? styles.rightText : styles.leftText]}>
-        {message.text}
-      </Text>
+    {isImage ? (
+        <Image 
+            source={{ uri: message.text }} 
+            style={styles.imageContent} 
+            resizeMode="cover"
+        />
+      ) : (
+        <Text style={[styles.text, isMe ? styles.rightText : styles.leftText]}>
+            {message.text}
+        </Text>
+      )}
       <Text style={[styles.time, isMe ? styles.rightTime : styles.leftTime]}>
         {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Text>
@@ -65,4 +74,10 @@ const styles = StyleSheet.create({
   rightTime: {
     color: 'rgba(255,255,255,0.7)',
   },
+  imageContent: {
+        width: 200,
+        height: 150,
+        borderRadius: 10,
+        marginBottom: 4,
+    }
 });
