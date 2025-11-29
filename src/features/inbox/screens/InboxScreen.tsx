@@ -1,7 +1,7 @@
 import React, {useState, useCallback} from 'react';
 import {View, FlatList, StyleSheet, StatusBar, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {ConversationRow} from '@/components/ConversationRow';
+import {ConversationRow} from '@/features/inbox/components/ConversationRow';
 import { MOCK_CONVERSATIONS } from '../data/mock';
 import {Conversation} from '@/types';
 import { SwipeableRow } from '../components/SwipeableRow';

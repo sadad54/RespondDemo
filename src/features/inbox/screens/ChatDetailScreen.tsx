@@ -5,7 +5,7 @@ import {RootStackParamList} from '@/types';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
 import { MessageBubble } from '../components/MessageBubble';
 import { Message, MOCK_MESSAGES } from '../data/chatMock';
-
+import {ChatInput} from '../components/ChatInput';
 
 
 type ChatDetailRouteProp = RouteProp<RootStackParamList, 'ChatDetail'>;
@@ -16,6 +16,18 @@ export const ChatDetailScreen = () => {
     const {conversationId} = route.params;
 //keep messages in state so we can eventually add new ones
 const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+
+const handleSend= (text:string)=>{
+    const newMessage: Message={
+        id: Date.now().toString(), //simple unique id
+        text: text,
+        senderId:'me',
+        timestamp: new Date().toISOString(),
+    };
+
+    //add to the start of the array bc our list is inverted
+    setMessages((prev)=> [newMessage, ...prev]);
+};
     //Systems thinking: in a real app we would fetch messages here with useEffect
     //useEffect(() => {api.getMessages(conversationId)}, [conversationId]);
 
@@ -39,9 +51,7 @@ const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
     contentContainerStyle={styles.listContent}
     />
     {/* placeholder for Input Bar*/}
-    <View style={styles.inputPlaceholder}>
-        {/*just a visual block for now*/}
-    </View>
+    <ChatInput onSend={handleSend} />
 </KeyboardAvoidingView>
         </SafeAreaView>
     );

@@ -15,6 +15,8 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     unreadCount: 2,
     status: 'delivered',
     isPinned: true,
+    channel: 'whatsapp',
+    tags: ['Lead', 'Urgent'],
   },
   {
     id: '2',
@@ -28,6 +30,8 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     timestamp: '2023-10-25T09:15:00Z',
     unreadCount: 0,
     status: 'read',
+    channel: 'email',
+    tags: ['Customer'],
   },
   {
     id: '3',
@@ -41,6 +45,8 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     timestamp: '2023-10-24T18:00:00Z',
     unreadCount: 5,
     status: 'sent',
+    channel: 'instagram',
+    tags: ['Support', 'VIP']
   },
   // Add more items here to test scrolling performance later!
 ];

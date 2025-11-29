@@ -1,6 +1,7 @@
 //this specific set of strings is a "union type"
 //it ensures strict sfety for message statuses.
 export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed';
+export type ChannelType = 'whatsapp' | 'messenger' | 'email' | 'instagram';
 
 export interface User {
     id: string;
@@ -17,6 +18,8 @@ export interface Conversation{
     unreadCount: number;
     status: MessageStatus;
     isPinned?: boolean;
+    channel: ChannelType;
+    tags: string[]; //e.g., ['support', 'vip', 'sales']
 }
 // This defines which screens exist and what data they expect
 export type RootStackParamList = {
