@@ -1,58 +1,58 @@
-// src/store/conversationStore.ts
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Conversation, Message } from '@/types';
-import { MOCK_CONVERSATIONS } from '@/features/inbox/data/mock';
 import { zustandStorage } from './storage';
+
+// 👇 1. Import the new mock data
+import { MOCK_CONVERSATIONS } from '@/features/inbox/data/mock';
 
 interface ConversationState {
   conversations: Conversation[];
-  // Actions
   deleteConversation: (id: string) => void;
   addConversation: (conversation: Conversation) => void;
   sendMessage: (conversationId: string, message: Message) => void;
-  // We can add more later (like setConversations)
 }
 
 export const useConversationStore = create<ConversationState>()(
   persist(
     (set) => ({
-      // Initial State (Load mocks only if storage is empty, or just start with mocks for now)
-      conversations: MOCK_CONVERSATIONS,
+      // 👇 2. Set the initial state to your rich mocks!
+      // This ensures that when the app installs, these chats appear instantly.
+      conversations: MOCK_CONVERSATIONS, 
 
-      // Action: Delete
       deleteConversation: (id) =>
         set((state) => ({
           conversations: state.conversations.filter((c) => c.id !== id),
         })),
 
-      // Action: Add
       addConversation: (conversation) =>
         set((state) => ({
           conversations: [conversation, ...state.conversations],
         })),
-        //logic to save messages
-        sendMessage: (conversationId, newMessage) =>
-          set((state) => ({
-            conversations: state.conversations.map((c) => {
-              if (c.id === conversationId) {
-                return {
-                  ...c,
-                  // 1. Add new message to the TOP of the array (since our list is inverted)
-                  messages: [newMessage, ...c.messages],
-                  // 2. Update the preview snippet
-                  lastMessage: newMessage.type === 'image' ? '📷 Image' : newMessage.text,
-                  // 3. Update timestamp to now
-                  timestamp: newMessage.timestamp,
-                };
-              }
-              return c;
-            }),
-          })),
+
+      sendMessage: (conversationId, newMessage) =>
+        set((state) => ({
+          conversations: state.conversations.map((c) => {
+            if (c.id === conversationId) {
+              return {
+                ...c,
+                // Add new message to the TOP of the list (since we invert the UI)
+                messages: [newMessage, ...c.messages],
+                lastMessage: newMessage.type === 'image' ? '📷 Image' : newMessage.text,
+                timestamp: newMessage.timestamp,
+                // Reset unread count if we reply
+                unreadCount: 0,
+                // Move this conversation to the top of the inbox list
+                // (We can do this by sorting later, or just updating timestamp here)
+              };
+            }
+            return c;
+          }),
+        })),
     }),
     {
-      name: 'conversation-storage', // unique name for the key in MMKV
-      storage: createJSONStorage(() => zustandStorage), // Use our fast adapter!
+      name: 'conversation-storage',
+      storage: createJSONStorage(() => zustandStorage),
     }
   )
 );
