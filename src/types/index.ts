@@ -8,6 +8,13 @@ export interface User {
     name: string;
     avatar: string;
     isOnline: boolean;
+
+    //  CRM Fields
+  email?: string;
+  phone?: string;
+  location?: string;
+  company?: string;
+  attributes?: Record<string, string>; // e.g. { "Plan": "Enterprise", "Renewal": "
 }
 
 export interface Conversation{
@@ -25,4 +32,5 @@ export interface Conversation{
 export type RootStackParamList = {
   Inbox: undefined; // No data needed to show the Inbox
   ChatDetail: { conversationId: string }; // We MUST pass an ID to open a chat
+  ContactDetails: { userId: string }; // We MUST pass a user ID to open contact details
 };

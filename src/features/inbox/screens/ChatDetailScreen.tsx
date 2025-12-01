@@ -1,21 +1,31 @@
 import React, { useEffect, useState} from 'react';
 import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {RootStackParamList} from '@/types';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
 import { MessageBubble } from '../components/MessageBubble';
 import { Message, MOCK_MESSAGES } from '../data/chatMock';
 import {ChatInput} from '../components/ChatInput';
+import { TouchableOpacity, Image } from 'react-native';
+import { useConversationStore } from '@/store/conversationStore';
+
 
 
 type ChatDetailRouteProp = RouteProp<RootStackParamList, 'ChatDetail'>;
+type ChatDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ChatDetail'>;
 
 export const ChatDetailScreen = () => {
     const route = useRoute<ChatDetailRouteProp>();
-    const navigation = useNavigation();
+    const navigation = useNavigation<ChatDetailNavigationProp>();
     const {conversationId} = route.params;
 //keep messages in state so we can eventually add new ones
 const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+//find the convo to go the user details
+const conversation = useConversationStore((state) => 
+    state.conversations.find((c) => c.id === conversationId));
+
+
 
 const handleSend= (content: string, type: 'text' | 'image', isInternal:boolean)=>{
     const newMessage: Message={
@@ -34,9 +44,29 @@ const handleSend= (content: string, type: 'text' | 'image', isInternal:boolean)=
     //useEffect(() => {api.getMessages(conversationId)}, [conversationId]);
 
     useEffect(() => {
-        //we are setting the header title dynamically based on conversationId
-        navigation.setOptions({title: `Chat #${conversationId}`});
-    }, [navigation, conversationId]);
+        if (!conversation) return;
+    
+        // Use setOptions to render a custom header title
+        navigation.setOptions({
+          headerTitle: () => (
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+              onPress={() => navigation.navigate('ContactDetails', { userId: conversation.user.id })}
+            >
+              <Image 
+                source={{ uri: conversation.user.avatar }} 
+                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#ccc' }} 
+              />
+              <View>
+                 <Text style={{ fontSize: 16, fontWeight: '600' }}>{conversation.user.name}</Text>
+                 {/* Optional: Show status or company here too */}
+              </View>
+            </TouchableOpacity>
+          ),
+          // Remove default title
+          title: '', 
+        });
+      }, [navigation, conversation]);
 
     return (
         <SafeAreaView style={styles.container}>

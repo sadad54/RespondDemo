@@ -46,6 +46,7 @@ export const FilterBar = ({ activeFilter, onSelect }: FilterBarProps) => {
                 {filter.label}
               </Text>
             </TouchableOpacity>
+            
           );
         })}
       </ScrollView>

@@ -3,6 +3,7 @@
     "name": "RespondDemo",
     "slug": "RespondDemo",
     "version": "1.0.0",
+    "scheme": "responddemo",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

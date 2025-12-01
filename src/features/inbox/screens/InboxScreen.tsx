@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useMemo} from 'react';
-import {View, FlatList, StyleSheet, StatusBar, Alert} from 'react-native';
+import {View, FlatList, StyleSheet, StatusBar, Alert, TouchableOpacity, Text} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ConversationRow} from '@/features/inbox/components/ConversationRow';
 import { MOCK_CONVERSATIONS } from '../data/mock';
@@ -13,6 +13,8 @@ import { SearchBar } from '../components/SearchBar';
 import { useDebounce } from '../hooks/useDebounce';
 import * as Haptics from 'expo-haptics';
 import { ActionSheet } from '../components/ActionSheet';
+import * as Notifications from 'expo-notifications';
+
 
 //fake api call simulation which takes 1sec to respond
 //retuns TRUE on success, FALSE on failure
@@ -26,7 +28,26 @@ const fakeArchiveApi = async (id:string): Promise<boolean>=>{
     });
 };
 export const InboxScreen =()=>{
+  const scheduleTestNotification = async () => {
+    // 1. Request permissions (required on iOS)
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission needed for notifications!');
+      return;
+    }
+
+    // 2. Schedule a fake notification 3 seconds from now
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "New Urgent Message 🚨",
+        body: "Sarah Chen needs approval on the contract.",
+        data: { url: 'responddemo://chat/1' }, // <--- THE DEEP LINK
+      },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 3 },
+    });
     
+    alert('Close the app now! Wait 3 seconds.');
+  };
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     //1. lifting the data to a local state so we can mutate it
    const conversations = useConversationStore((state)=> state.conversations);
@@ -119,10 +140,18 @@ export const InboxScreen =()=>{
         <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.container}>
-
+{/* Temporary Dev Button */}
+<TouchableOpacity 
+  onPress={scheduleTestNotification}
+  style={{ padding: 10, backgroundColor: '#000', alignItems: 'center' }}
+>
+  <Text style={{ color: '#fff' }}>Simulate Push Notification</Text>
+</TouchableOpacity>
         {/* 2. Filter Bar Component */}
         <FilterBar activeFilter={activeFilter} onSelect={setActiveFilter} />
         <SearchBar value={searchQuery} onChangeText={setSearchQuery}/>
+
+        
          {/* 3. Updated FlatList to use filteredConversations */}
         <FlatList
           data={filteredConversations}
