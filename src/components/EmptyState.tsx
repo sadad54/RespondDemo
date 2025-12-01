@@ -25,9 +25,7 @@ export const EmptyState = ({ message }: EmptyStateProps) => {
           height: 200,
           backgroundColor: 'transparent',
         }}
-        // REPLACE THIS with require('../../assets/animations/empty-state.json')
-        // For now, let's use a remote URI just to test (Expo supports this!)
-        source={{ uri: 'https://lottie.host/5a8e0254-207d-4c3e-9676-e52233f20e40/7zJk5q3m2a.json' }}
+        source={require('../../assets/animations/empty-box.json')}
       />
       <Text style={styles.text}>{message}</Text>
     </View>

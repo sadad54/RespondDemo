@@ -203,9 +203,7 @@ export const InboxScreen =()=>{
           title={selectedChatId ? "Quick Actions" : ""}
         />
       </View>
-      <AnimatedFAB onPress={function (): void {
-          throw new Error('Function not implemented.');
-        } } />
+      <AnimatedFAB onPress={() => navigation.navigate('NewChat')} />
     </SafeAreaView>
   );
 };

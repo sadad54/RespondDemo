@@ -5,6 +5,7 @@ import {InboxScreen} from '@/features/inbox/screens/InboxScreen';
 import { RootStackParamList } from '@/types';
 import { ChatDetailScreen } from '@/features/inbox/screens/ChatDetailScreen';
 import { ContactDetailsScreen } from '@/features/inbox/screens/ContactDetailsScreen';
+import { NewChatScreen } from '@/features/inbox/screens/NewChatScreen';
 import * as Linking from 'expo-linking';
 
 const linking = {
@@ -48,6 +49,7 @@ export const RootNavigator = () => {
          <Stack.Screen name="ChatDetail" component={ChatDetailScreen} />
          <Stack.Screen name="ContactDetails" component={ContactDetailsScreen} options={{title: 'Contact Info'}}
          />
+         <Stack.Screen name="NewChat" component={NewChatScreen} options={{title: 'New Chat'}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

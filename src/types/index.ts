@@ -34,6 +34,7 @@ export type RootStackParamList = {
   Inbox: undefined; // No data needed to show the Inbox
   ChatDetail: { conversationId: string }; // We MUST pass an ID to open a chat
   ContactDetails: { userId: string }; // We MUST pass a user ID to open contact details
+  NewChat: undefined; // No data needed to start a new chat
 };
 export interface Message {
   id: string;
