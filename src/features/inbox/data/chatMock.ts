@@ -4,6 +4,7 @@ export interface Message {
   senderId: string; // 'me' or 'them'
   timestamp: string;
   type?: 'text' | 'image';//new optional field (defaults to text)
+  isInternal?: boolean;
 }
 
 
@@ -32,6 +33,13 @@ export const MOCK_MESSAGES: Message[] = [
     text: 'Hello!',
     senderId: 'them',
     timestamp: '2023-10-25T09:00:00Z',
+  },
+  {
+    id: 'm0',
+    text: 'Client is asking for a discount. @Manager, can we approve 10%?',
+    senderId: 'me',
+    timestamp: '2023-10-25T14:40:00Z',
+    isInternal: true, // <--- This is a private note!
   },
   // Add more to test scrolling!
 ];

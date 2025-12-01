@@ -134,6 +134,13 @@ export const InboxScreen =()=>{
             { length: 80, offset: 80 * index, index }
           )}
         />
+        {/* 5. Add the Action Sheet at the bottom */}
+        <ActionSheet 
+          visible={isSheetVisible}
+          onClose={() => setSheetVisible(false)}
+          onSelect={handleAction}
+          title={selectedChatId ? "Quick Actions" : ""}
+        />
       </View>
     </SafeAreaView>
   );
