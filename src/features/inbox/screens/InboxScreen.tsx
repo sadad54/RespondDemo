@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import {View, FlatList, StyleSheet, StatusBar, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ConversationRow} from '@/features/inbox/components/ConversationRow';
@@ -7,9 +7,12 @@ import {Conversation} from '@/types';
 import { SwipeableRow } from '../components/SwipeableRow';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
-
-
-
+import { FilterBar, FilterType } from '../components/FilterBar';
+import { useConversationStore } from '@/store/conversationStore';
+import { SearchBar } from '../components/SearchBar';
+import { useDebounce } from '../hooks/useDebounce';
+import * as Haptics from 'expo-haptics';
+import { ActionSheet } from '../components/ActionSheet';
 
 //fake api call simulation which takes 1sec to respond
 //retuns TRUE on success, FALSE on failure
@@ -23,48 +26,106 @@ const fakeArchiveApi = async (id:string): Promise<boolean>=>{
     });
 };
 export const InboxScreen =()=>{
-
+    
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     //1. lifting the data to a local state so we can mutate it
-    const [conversations, setConversations]=useState<Conversation[]>(MOCK_CONVERSATIONS);
+   const conversations = useConversationStore((state)=> state.conversations);
+   const deleteConversation = useConversationStore((state) => state.deleteConversation);
+   const addConversation = useConversationStore((state) => state.addConversation);
     //Handlers should be wrapped in userCallback to prevent re-creation on every render
+    //3. new state for filters
+
+    // search state
+    const [searchQuery, setSearchQuery]=useState('');
+    // debounce the serach query
+    const debouncedSearch= useDebounce(searchQuery,300);
+
+    const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+    //4. the systems thinking magic: useMemo
+
+    //updated filtering logic after search and debounce
+    const filteredConversations = useMemo(() => {
+        let result= conversations;
+        //filter by channel first
+        if (activeFilter !== 'all') {
+            result = result.filter((c)=> c.channel===activeFilter);
+        }
+        //filter by search (using the DEBOUNCED value)
+        if(debouncedSearch){
+            const lowerQuery =debouncedSearch.toLowerCase();
+            result = result.filter(
+                (c)=>
+                    c.user.name.toLowerCase().includes(lowerQuery) ||
+                c.lastMessage.toLowerCase().includes(lowerQuery)
+            );
+        }
+        return result;
+    }, [conversations, activeFilter, debouncedSearch]); //depend on debouncedSearch
+
+
+
     const handlePress=useCallback((id:string)=>{
         console.log('Navigation triggered for:', id);
         navigation.navigate('ChatDetail', {conversationId: id});
     }, [navigation]);
-    const handleArchive= useCallback(async (conversationId: string)=>{
-        //A. snapshot to remember the previous list if we need to go back
-        const previousList=[...conversations];
-        //B. Optimistically update the UI
-        setConversations((current)=>current.filter(c=>c.id!==conversationId));
-        try {
-            //C. API Call: tell the server 
-            const success = await fakeArchiveApi(conversationId);
-            if (!success) {
-                throw new Error('Network glitch!');
-            }
-            //If success, do nothing! the UI is already updated
-        } catch (error) {
-            //D. If error, rollback to the previous state
-            console.log('Archiving failed, rolling back...', error);
-            Alert.alert("Connection error", "Could not archive chat. Restoring...")
-            setConversations(previousList);
-        }
-    }, [conversations]);
+    //cleaner archive function
+    const handleArchive = useCallback((conversationId: string) => {
+     deleteConversation(conversationId);
+  }, [deleteConversation]);
 
+// 1. New State for the Action Sheet
+  const [isSheetVisible, setSheetVisible] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
 
+  // 2. The Long Press Handler (The "Wow" Interaction)
+  const handleLongPress = useCallback((id: string) => {
+    // Systems Thinking: Feedback is crucial for hidden gestures
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setSelectedChatId(id);
+    setSheetVisible(true);
+  }, []);
 
+  // 3. The Action Executioner
+  const handleAction = (actionId: string) => {
+    if (!selectedChatId) return;
+
+    switch (actionId) {
+      case 'delete':
+        // Reuse our existing store logic!
+        deleteConversation(selectedChatId);
+        break;
+      case 'assign':
+        Alert.alert('Assigned', 'Ticket assigned to you.');
+        break;
+      case 'snooze':
+        Alert.alert('Snoozed', 'Reminder set for 1 hour.');
+        break;
+      case 'close':
+        Alert.alert('Closed', 'Ticket marked as resolved.');
+        break;
+    }
+    // Cleanup
+    setSelectedChatId(null);
+  };
+  
+  // update renderItem to pass the query for highlighting
+  //NOTE: we pass "debouncedSearch" so highlighting update in sync with the list
     const renderItem=useCallback(({item}: {item:Conversation})=>(
         <SwipeableRow onSwipeLeft={() => handleArchive(item.id)}>
-            <ConversationRow data={item} onPress={handlePress} />
+            <ConversationRow data={item} onPress={handlePress} onLongPress={handleLongPress} searchQuery={debouncedSearch}/>
         </SwipeableRow>
-    ), [handlePress, handleArchive]);  
+    ), [handleArchive, handlePress, debouncedSearch, handleLongPress]);  
     return(
         <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.container}>
+
+        {/* 2. Filter Bar Component */}
+        <FilterBar activeFilter={activeFilter} onSelect={setActiveFilter} />
+        <SearchBar value={searchQuery} onChangeText={setSearchQuery}/>
+         {/* 3. Updated FlatList to use filteredConversations */}
         <FlatList
-          data={conversations}
+          data={filteredConversations}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           // Performance Optimization:

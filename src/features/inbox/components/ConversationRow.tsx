@@ -2,10 +2,16 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Conversation } from '@/types';
 import { ChannelType } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import { HighlightText } from './HighlighText';
+
+
 
 interface ConversationRowProps {
     data: Conversation;
     onPress: (id: string) => void;
+    searchQuery?:string;
+    onLongPress?: (id:string)=>void; //add optional prop
 }
 
 //A cleaner helper function to map data to visual (Systems thinking:separation of concerns)
@@ -19,13 +25,15 @@ const getChannelIcon = (channel: ChannelType) => {
   }
 };
 //Performance optimized by react.memo
-export const ConversationRow = React.memo(({ data, onPress }: ConversationRowProps) => {
+export const ConversationRow = React.memo(({ data, onPress,onLongPress, searchQuery='' }: ConversationRowProps) => {
   const channelIcon = getChannelIcon(data.channel);
   return (
     <TouchableOpacity 
       style={styles.container} 
       onPress={() => onPress(data.id)}
       activeOpacity={0.7}
+      onLongPress={()=>onLongPress && onLongPress(data.id)}//trigger it here
+      delayLongPress={300}//standard delay
     >
 {/* Avatar Section with Channel Badge */}
       <View style={styles.avatarContainer}>
@@ -39,7 +47,12 @@ export const ConversationRow = React.memo(({ data, onPress }: ConversationRowPro
       {/* Middle Section: Name & Message */}
  <View style={styles.content}>
         <View style={styles.headerRow}>
-          <Text style={styles.name}>{data.user.name}</Text>
+          {/* Highlight the Name */}
+          <HighlightText 
+            text={data.user.name} 
+            highlight={searchQuery} 
+            style={styles.name} 
+          />
           {/* Render Tags */}
           {data.tags?.map(tag => (
              <View key={tag} style={styles.tagContainer}>
@@ -47,9 +60,14 @@ export const ConversationRow = React.memo(({ data, onPress }: ConversationRowPro
              </View>
           ))}
         </View>
-        <Text style={styles.message} numberOfLines={1}>
-          {data.lastMessage}
-        </Text>
+
+        {/* Highlight the Message */}
+        <HighlightText 
+            text={data.lastMessage} 
+            highlight={searchQuery} 
+            style={styles.message}
+            numberOfLines={1} 
+        />
       </View>
 
       {/* Right Section: Meta Data */}
