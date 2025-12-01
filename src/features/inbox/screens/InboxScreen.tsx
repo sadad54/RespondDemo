@@ -137,7 +137,7 @@ export const InboxScreen =()=>{
         </SwipeableRow>
     ), [handleArchive, handlePress, debouncedSearch, handleLongPress]);  
     return(
-        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.container}>
 {/* Temporary Dev Button */}

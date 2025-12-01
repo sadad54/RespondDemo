@@ -26,7 +26,8 @@ export interface Conversation{
     status: MessageStatus;
     isPinned?: boolean;
     channel: ChannelType;
-    tags: string[]; //e.g., ['support', 'vip', 'sales']
+    tags: string[]; 
+    messages: Message[];//e.g., ['support', 'vip', 'sales']
 }
 // This defines which screens exist and what data they expect
 export type RootStackParamList = {
@@ -34,3 +35,11 @@ export type RootStackParamList = {
   ChatDetail: { conversationId: string }; // We MUST pass an ID to open a chat
   ContactDetails: { userId: string }; // We MUST pass a user ID to open contact details
 };
+export interface Message {
+  id: string;
+  text: string;
+  senderId: string; // 'me' or 'them'
+  timestamp: string;
+  type?: 'text' | 'image';//new optional field (defaults to text)
+  isInternal?: boolean;
+}

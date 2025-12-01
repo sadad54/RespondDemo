@@ -1,7 +1,7 @@
 // src/store/conversationStore.ts
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { Conversation } from '@/types';
+import { Conversation, Message } from '@/types';
 import { MOCK_CONVERSATIONS } from '@/features/inbox/data/mock';
 import { zustandStorage } from './storage';
 
@@ -10,6 +10,7 @@ interface ConversationState {
   // Actions
   deleteConversation: (id: string) => void;
   addConversation: (conversation: Conversation) => void;
+  sendMessage: (conversationId: string, message: Message) => void;
   // We can add more later (like setConversations)
 }
 
@@ -30,6 +31,24 @@ export const useConversationStore = create<ConversationState>()(
         set((state) => ({
           conversations: [conversation, ...state.conversations],
         })),
+        //logic to save messages
+        sendMessage: (conversationId, newMessage) =>
+          set((state) => ({
+            conversations: state.conversations.map((c) => {
+              if (c.id === conversationId) {
+                return {
+                  ...c,
+                  // 1. Add new message to the TOP of the array (since our list is inverted)
+                  messages: [newMessage, ...c.messages],
+                  // 2. Update the preview snippet
+                  lastMessage: newMessage.type === 'image' ? '📷 Image' : newMessage.text,
+                  // 3. Update timestamp to now
+                  timestamp: newMessage.timestamp,
+                };
+              }
+              return c;
+            }),
+          })),
     }),
     {
       name: 'conversation-storage', // unique name for the key in MMKV

@@ -20,53 +20,31 @@ export const ChatDetailScreen = () => {
     const navigation = useNavigation<ChatDetailNavigationProp>();
     const {conversationId} = route.params;
 //keep messages in state so we can eventually add new ones
-const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
-//find the convo to go the user details
-const conversation = useConversationStore((state) => 
-    state.conversations.find((c) => c.id === conversationId));
+// 1. SELECT DATA FROM STORE
+  // We find the specific conversation we are looking at
+  const conversation = useConversationStore(state => 
+    state.conversations.find(c => c.id === conversationId)
+  );
+  
+  // 2. GRAB THE ACTION
+  const sendMessage = useConversationStore(state => state.sendMessage);
 
+  // Safety check (in case conversation was deleted)
+  if (!conversation) return null;
 
-
-const handleSend= (content: string, type: 'text' | 'image', isInternal:boolean)=>{
-    const newMessage: Message={
-        id: Date.now().toString(), //simple unique id
-        text: content,
-        senderId:'me',
-        timestamp: new Date().toISOString(),
-        type: type, // include the message type
-        isInternal: isInternal,
+  const handleSend = (content: string, type: 'text' | 'image', isInternal: boolean) => {
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      text: content,
+      senderId: 'me',
+      timestamp: new Date().toISOString(),
+      type: type,
+      isInternal: isInternal,
     };
 
-    //add to the start of the array bc our list is inverted
-    setMessages((prev)=> [newMessage, ...prev]);
-};
-    //Systems thinking: in a real app we would fetch messages here with useEffect
-    //useEffect(() => {api.getMessages(conversationId)}, [conversationId]);
-
-    useEffect(() => {
-        if (!conversation) return;
-    
-        // Use setOptions to render a custom header title
-        navigation.setOptions({
-          headerTitle: () => (
-            <TouchableOpacity 
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
-              onPress={() => navigation.navigate('ContactDetails', { userId: conversation.user.id })}
-            >
-              <Image 
-                source={{ uri: conversation.user.avatar }} 
-                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#ccc' }} 
-              />
-              <View>
-                 <Text style={{ fontSize: 16, fontWeight: '600' }}>{conversation.user.name}</Text>
-                 {/* Optional: Show status or company here too */}
-              </View>
-            </TouchableOpacity>
-          ),
-          // Remove default title
-          title: '', 
-        });
-      }, [navigation, conversation]);
+    // 3. CALL THE STORE INSTEAD OF LOCAL STATE
+    sendMessage(conversationId, newMessage);
+  };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -76,7 +54,7 @@ const handleSend= (content: string, type: 'text' | 'image', isInternal:boolean)=
         style={styles.keyboardContainer}
       >
     <FlatList
-    data={messages}
+    data={conversation.messages}
     renderItem ={({item})=><MessageBubble message={item} />}
     keyExtractor={(item) => item.id}
     inverted //the magic prop

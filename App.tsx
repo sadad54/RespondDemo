@@ -32,7 +32,13 @@ export default function App() {
     return () => subscription.remove();
   }, []);
 
-  return <RootNavigator />;
+  return (
+    
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <RootNavigator />
+      </GestureHandlerRootView>
+    
+  );
 }
 
 const styles = StyleSheet.create({
