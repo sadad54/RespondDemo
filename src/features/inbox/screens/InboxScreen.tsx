@@ -14,6 +14,11 @@ import { useDebounce } from '../hooks/useDebounce';
 import * as Haptics from 'expo-haptics';
 import { ActionSheet } from '../components/ActionSheet';
 import * as Notifications from 'expo-notifications';
+import { SkeletonRow } from '@/components/SkeletonRow';
+import { EmptyState } from '@/components/EmptyState';
+import { AnimatedFAB } from '@/components/AnimatedFAB';
+
+
 
 
 //fake api call simulation which takes 1sec to respond
@@ -28,7 +33,20 @@ const fakeArchiveApi = async (id:string): Promise<boolean>=>{
     });
 };
 export const InboxScreen =()=>{
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate fetching data from Respond.io servers
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+
+
   const scheduleTestNotification = async () => {
+
     // 1. Request permissions (required on iOS)
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') {
@@ -153,16 +171,30 @@ export const InboxScreen =()=>{
 
         
          {/* 3. Updated FlatList to use filteredConversations */}
+         {isLoading ? (
+          // Render 6 fake rows while loading
+          <View>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <SkeletonRow key={i} />
+            ))}
+          </View>
+        ) : (
         <FlatList
           data={filteredConversations}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
+          ListEmptyComponent={
+            // Only show empty state if we are NOT loading
+            !isLoading ? <EmptyState message="No conversations found." /> : null
+          }
           // Performance Optimization:
           // We tell the list the exact height of our rows (80px)
           getItemLayout={(data, index) => (
             { length: 80, offset: 80 * index, index }
           )}
         />
+        )}
+        
         {/* 5. Add the Action Sheet at the bottom */}
         <ActionSheet 
           visible={isSheetVisible}
@@ -171,6 +203,9 @@ export const InboxScreen =()=>{
           title={selectedChatId ? "Quick Actions" : ""}
         />
       </View>
+      <AnimatedFAB onPress={function (): void {
+          throw new Error('Function not implemented.');
+        } } />
     </SafeAreaView>
   );
 };

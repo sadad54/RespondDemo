@@ -32,7 +32,10 @@ export const RootNavigator = () => {
         <Stack.Navigator
             initialRouteName="Inbox"
             screenOptions={{
-                headerTintColor: '#000',
+              headerTintColor: '#000',
+              animation: 'slide_from_right', // Ensures native-feeling transitions
+              headerShadowVisible: false, // Cleaner, modern look (removes the ugly line)
+              headerStyle: { backgroundColor: '#fff' },
             }}
       >
         <Stack.Screen 
