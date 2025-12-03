@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+REACT_NATIVE_LEARNING_GUIDE.md
+PROJECT_WALKTHROUGH.md 
+QUICK_REFERENCE.md 
+LEARNING_RESOURCES_README.md
