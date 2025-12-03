@@ -1,4 +1,4 @@
-// src/features/inbox/data/mock.ts
+
 import { Conversation, Message } from '@/types';
 
 // Helper to generate random IDs

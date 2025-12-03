@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useLayoutEffect } from 'react';
 import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,6 +28,30 @@ export const ChatDetailScreen = () => {
   
   // 2. GRAB THE ACTION
   const sendMessage = useConversationStore(state => state.sendMessage);
+
+  useLayoutEffect(() => {
+    if (!conversation) return;
+
+    navigation.setOptions({
+      headerTitle: () => (
+        <TouchableOpacity
+          style={styles.headerTitle}
+          activeOpacity={0.7}
+          onPress={() =>
+            navigation.navigate('ContactDetails', { userId: conversation.user.id })
+          }
+        >
+          <Image source={{ uri: conversation.user.avatar }} style={styles.headerAvatar} />
+          <View>
+            <Text style={styles.headerName}>{conversation.user.name}</Text>
+            <Text style={styles.headerMeta}>
+              {conversation.channel.toUpperCase()} • {conversation.status.toUpperCase()}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ),
+    });
+  }, [conversation, navigation]);
 
   // Safety check (in case conversation was deleted)
   if (!conversation) return null;
@@ -85,7 +109,28 @@ inputPlaceholder:{
     backgroundColor: '#eee',
     margin: 10,
     borderRadius:25,
-}
+},
+headerTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  headerName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
+  },
+  headerMeta: {
+    fontSize: 12,
+    color: '#5f5f5f',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
 },
 
 
